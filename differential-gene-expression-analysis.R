@@ -1,7 +1,6 @@
 # #Install packages
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
-# BiocManager::install(version = "3.13")
 # BiocManager::install("DESeq2")
 # BiocManager::install("clusterProfiler")
 # BiocManager::install("org.Hs.eg.db")
