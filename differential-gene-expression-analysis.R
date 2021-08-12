@@ -12,7 +12,6 @@
 # BiocManager::install("GEOquery")
 #load packages
 library(DESeq2)
-
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(apeglm)
@@ -41,10 +40,14 @@ labels_gse142731=data.frame(V1=pData(gse142731[[1]])[,"race:ch1"])
 labels_gse142731$V1=factor(labels_gse142731$V1)
 levels(labels_gse142731$V1)=c('African American','Caucasian')
 
-GSE142731<-as.matrix(read.table("C:/Users/HP/Downloads/GSE142731_Matrix-file.txt"))
-dim(GSE142731)
-deseq2_142731 <- DESeqDataSetFromMatrix(countData = round(GSE142731[,2:ncol(GSE142731)]),colData = labels_gse142731,design = ~V1)
+#load this file from the google drive
+GSE142731<-read.csv("C:/Users/HP/Downloads/GSE142731_Matrix-file.txt",sep="")
 
+dim(GSE142731)
+#deseq2_142731 <- DESeqDataSetFromMatrix(countData = GSE142731[,2:ncol(GSE142731)],colData = labels_gse142731,design = ~V1)
+row.names(GSE142731) <- GSE142731[,1]
+
+deseq2_142731 <- DESeqDataSetFromMatrix(countData = round(GSE142731[,2:ncol(GSE142731)]),colData = labels_gse142731,design = ~V1)
 #creating a copy of the DESeq2 object
 dds_142731=deseq2_142731 
 #making a copy of this DESeq2 object to get a list of DEGs
@@ -52,6 +55,7 @@ dds_142731=deseq2_142731
 
 #Removing rows with zero values form the dataset
 keep_genes <- rowSums(counts(deseq2_142731)) > 0
+dim(keep_genes)
 deseq2_142731 <- deseq2_142731[ keep_genes, ]
 dim(deseq2_142731)
 
@@ -70,8 +74,8 @@ boxplot(log2(counts(deseq2_142731, normalize= TRUE) +1), notch=TRUE,
         ylab="log2(read counts)", cex = .6,xaxt="n")
 
 
-#VST
-vsd_142731 <- vst(deseq2_142731, blind = FALSE)
+#VST normalization
+vsd_142731 <- vs(deseq2_142731, blind = FALSE)
 head(assay(vsd_142731), 3)
 #rlog
 rld <- rlog(deseq2_142731, blind = FALSE)
@@ -133,6 +137,7 @@ top10_up<-head(Sign_genes_down_142731[order(Sign_genes_down_142731$padj),], 10)
 all_genes_human = unique(rownames(dds_142731))
 select(org.Hs.eg.db,rownames(Sign_genes_up_142731),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
 select(org.Hs.eg.db,rownames(Sign_genes_down_142731),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
+#Top ten differentially expressed both up and down
 select(org.Hs.eg.db,rownames(top10_down),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
 select(org.Hs.eg.db,rownames(top10_up),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
 
