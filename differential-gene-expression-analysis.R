@@ -122,14 +122,16 @@ res.filtered.ordered_142731 =
 #convert to a dataframe
 res.filtered.ordered_142731=as.data.frame(res.filtered.ordered_142731)
 #Seperate up regulated genes
-Sign_genes_up_142731 = subset(res.filtered.ordered_142731, log2FoldChange >0.5)
+
+#trying fold change > 2
+Sign_genes_up_142731 = subset(res.filtered.ordered_142731, log2FoldChange >2.0)
 #Seperate up regulated genes
-Sign_genes_down_142731 = subset(res.filtered.ordered_142731, log2FoldChange < -0.5)
+Sign_genes_down_142731 = subset(res.filtered.ordered_142731, log2FoldChange < -2.0)
 #make a consolidated list with up-regulated genes in the begininig
 genes_142731=c(rownames(Sign_genes_down_142731),rownames(Sign_genes_up_142731))
 
 top10_down<-head(Sign_genes_down_142731[order(Sign_genes_down_142731$padj),], 10)
-top10_up<-head(Sign_genes_down_142731[order(Sign_genes_down_142731$padj),], 10)
+top10_up<-head(Sign_genes_up_142731[order(Sign_genes_up_142731$padj),], 10)
 
 
 
@@ -138,6 +140,8 @@ all_genes_human = unique(rownames(dds_142731))
 select(org.Hs.eg.db,rownames(Sign_genes_up_142731),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
 select(org.Hs.eg.db,rownames(Sign_genes_down_142731),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
 #Top ten differentially expressed both up and down
+library(dplyr)
+library(formattable)
 select(org.Hs.eg.db,rownames(top10_down),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
-select(org.Hs.eg.db,rownames(top10_up),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")
-
+na.omit(select(org.Hs.eg.db,rownames(top10_up),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL"))
+formattable(na.omit(select(org.Hs.eg.db,rownames(top10_up),c("SYMBOL","GENENAME","ENTREZID"),"ENSEMBL")))
